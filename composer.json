@@ -1,0 +1,6 @@
+{
+    "require": {
+        "nesbot/carbon": "^1.22",
+        "akeneo-labs/spreadsheet-parser": "^1.2"
+    }
+}
