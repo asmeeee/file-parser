@@ -53,9 +53,15 @@ $restrictedEmailDomains = [
     "foni.net",
     "yahoo.de",
     "yahoo.com",
-    "Hotmail.com",
-    "Hotmail.de",
+    "hotmail.com",
+    "hotmail.de",
     "outlook.com",
+    "live.de",
+    "gmx.de",
+    "freenet.de",
+    "aol.com",
+    "aol.de",
+    "online.de",
 ];
 
 $workbook = SpreadsheetParser::open($inputFileName);
@@ -67,7 +73,7 @@ foreach ($workbook->createRowIterator($myWorksheetIndex) as $rowIndex => $values
 
     if ($rowIndex > 1) {
         // Filter and write emails
-        $email = $values[9];
+        $email = strtolower($values[9]);
 
         if (!empty($email)) {
             $emailDomain = explode("@", $email);
@@ -75,7 +81,7 @@ foreach ($workbook->createRowIterator($myWorksheetIndex) as $rowIndex => $values
 
             if (!in_array($emailDomain, $restrictedEmailDomains)) {
                 // Write to DB
-                $query = $pdo->prepare('INSERT INTO `xlsx_#1_emails` (`data`) VALUES (?)');
+                $query = $pdo->prepare('INSERT INTO `emails` (`data`) VALUES (?)');
                 $query->execute([$email]);
             }
         }
@@ -83,18 +89,18 @@ foreach ($workbook->createRowIterator($myWorksheetIndex) as $rowIndex => $values
         // Filter and write websites
         $website = $values[8];
 
-        if (empty($email) && !empty($website)) {
+        if ((empty($email) || in_array($emailDomain, $restrictedEmailDomains)) && !empty($website)) {
             // Write to DB
-            $query = $pdo->prepare('INSERT INTO `xlsx_#1_websites` (`data`) VALUES (?)');
+            $query = $pdo->prepare('INSERT INTO `websites` (`data`) VALUES (?)');
             $query->execute([$website]);
         }
 
         // Filter and write companies
         $company = $values[1];
 
-        if (empty($email) && empty($website) && !empty($company)) {
+        if ((empty($email) || in_array($emailDomain, $restrictedEmailDomains)) && empty($website) && !empty($company)) {
             // Write to DB
-            $query = $pdo->prepare('INSERT INTO `xlsx_#1_companies` (`data`) VALUES (?)');
+            $query = $pdo->prepare('INSERT INTO `companies` (`data`) VALUES (?)');
             $query->execute([$company]);
         }
     }
